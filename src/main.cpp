@@ -7,7 +7,8 @@
 #include <sstream>
 using namespace std;
 
-
+#include "vertexBuffer.cpp"
+#include "indexBuffer.cpp"
 // end of libs
 struct ShaderSource
 {
@@ -124,7 +125,7 @@ int main(void)
         0.5f, -0.5f, //1
         0.5f, 0.5f, //2
         -0.5f, 0.5f, //3
-        0.0f, 1.0f  //4
+        0.0f, 0.9f  //4
     };
     unsigned int indices[] {
         0, 1, 2, 
@@ -136,23 +137,19 @@ int main(void)
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 5 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+    VertexBuffer vb(positions, 5 * 2 * sizeof(float));
+    
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
-    unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 9 * sizeof(unsigned int), indices, GL_STATIC_DRAW);    
+    IndexBuffer ib(indices, 9);
+      
     /*
     * WRITING 
     * SHADER
     */
-    ShaderSource source = ParseShader("res/shaders/basic.shader");
+    ShaderSource source = ParseShader("../res/shaders/basic.shader");
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
     //uniform for fragment shader
@@ -192,8 +189,9 @@ int main(void)
         }
         glUseProgram(shader);
         glUniform4f(location, red, 0.0f, 0.5f, 1.0f);
+
         glBindVertexArray(vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        ib.bind();
 
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
 
