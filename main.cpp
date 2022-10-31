@@ -152,6 +152,7 @@ int main(void)
     
     float red = 0.0f;
     float increment = 0.05f;
+    bool doIncrement = true;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -159,22 +160,25 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (red >= 1.0f)
+        //TODO: try a switch case i guess
+        if (doIncrement)
+        {   
+           red += increment;
+           if (red >= 1.0f)
+           {
+                doIncrement = false;
+           }
+        }
+        if (!doIncrement)
         {
-            red = 1.0f;
-            while (red >= 0.0f)
+            red -= increment;
+            if (red <= 0.0f)
             {
-                red -= increment;
-                if (red == 0.0f)
-                {   
-                    red = 0.0f;
-                    break;
-                }
+                doIncrement = true;
             }
-        } 
-        red += increment;
+        }
 
-        glUniform4f(location, red, 1.0f, 1.0f, 1.0f);
+        glUniform4f(location, red, 0.0f, 0.5f, 1.0f);
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, nullptr);
 
         /* Swap front and back buffers */
